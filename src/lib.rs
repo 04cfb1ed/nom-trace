@@ -122,7 +122,9 @@ impl Trace {
   }
 
   pub fn open<T>(&mut self, input: T, location: &'static str)
-    where Input: From<T> {
+  where
+    Input: From<T>,
+  {
     if self.active {
       self.events.push(TraceEvent::new(
         self.level,
@@ -136,7 +138,9 @@ impl Trace {
   }
 
   pub fn close_ok<T>(&mut self, input: T, location: &'static str, result: String)
-    where Input: From<T> {
+  where
+    Input: From<T>,
+  {
     if self.active {
       self.level -= 1;
       self.events.push(TraceEvent::new(
@@ -149,7 +153,9 @@ impl Trace {
   }
 
   pub fn close_error<T>(&mut self, input: T, location: &'static str, result: String)
-    where Input: From<T> {
+  where
+    Input: From<T>,
+  {
     if self.active {
       self.level -= 1;
       self.events.push(TraceEvent::new(
@@ -162,7 +168,9 @@ impl Trace {
   }
 
   pub fn close_failure<T>(&mut self, input: T, location: &'static str, result: String)
-    where Input: From<T> {
+  where
+    Input: From<T>,
+  {
     if self.active {
       self.level -= 1;
       self.events.push(TraceEvent::new(
@@ -175,7 +183,9 @@ impl Trace {
   }
 
   pub fn close_incomplete<T>(&mut self, input: T, location: &'static str, needed: nom::Needed)
-    where Input: From<T> {
+  where
+    Input: From<T>,
+  {
     if self.active {
       self.level -= 1;
       self.events.push(TraceEvent::new(
@@ -188,7 +198,7 @@ impl Trace {
   }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct TraceEvent {
   pub level: usize,
   pub input: Input,
@@ -196,7 +206,7 @@ pub struct TraceEvent {
   pub event: TraceEventType,
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub enum TraceEventType {
   Open,
   CloseOk(String),
@@ -207,7 +217,9 @@ pub enum TraceEventType {
 
 impl TraceEvent {
   pub fn new<T>(level: usize, input: T, location: &'static str, event: TraceEventType) -> Self
-    where Input: From<T> {
+  where
+    Input: From<T>,
+  {
     TraceEvent {
       level,
       input: Input::from(input),
@@ -224,17 +236,17 @@ impl TraceEvent {
         println!("{}{}\t{}", indent, self.location, s);
       },
       TraceEventType::CloseOk(result) => {
-        println!("{}-> Ok({})", indent, result);
-      },
+        println!("{}-> Ok({})\n", indent, result);
+      }
       TraceEventType::CloseError(e) => {
-        println!("{}-> Error({})", indent, e);
-      },
+        println!("{}-> Error({})\n", indent, e);
+      }
       TraceEventType::CloseFailure(e) => {
-        println!("{}-> Failure({})", indent, e);
-      },
+        println!("{}-> Failure({})\n", indent, e);
+      }
       TraceEventType::CloseIncomplete(i) => {
-        println!("{}-> Incomplete({:?})", indent, i);
-      },
+        println!("{}-> Incomplete({:?})\n", indent, i);
+      }
     }
   }
 }
@@ -267,15 +279,11 @@ impl Debug for Input {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match self {
       Input::String(ptr, len) => {
-        let s = unsafe {
-          std::str::from_utf8_unchecked(std::slice::from_raw_parts(*ptr, *len))
-        };
+        let s = unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(*ptr, *len)) };
         write!(f, "\"{}\"", s)
-      },
+      }
       Input::Bytes(ptr, len) => {
-        let s: &[u8] = unsafe {
-          std::slice::from_raw_parts(*ptr, *len)
-        };
+        let s: &[u8] = unsafe { std::slice::from_raw_parts(*ptr, *len) };
         write!(f, "{}", to_hex(s, 16))
       }
     }
@@ -291,8 +299,7 @@ fn to_hex(input: &[u8], chunk_size: usize) -> String {
   } else {
     for chunk in input.chunks(chunk_size) {
       //to_hex_chunk(&input[i..std::cmp::min(i+chunk_size, input.len())],
-      to_hex_chunk(chunk,
-        i, chunk_size, &mut v);
+      to_hex_chunk(chunk, i, chunk_size, &mut v);
       i += chunk_size;
       v.push(b'\n');
     }
@@ -517,7 +524,6 @@ macro_rules! tr (
   );
 );
 
-
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -527,15 +533,13 @@ mod tests {
 
   #[test]
   pub fn trace_bytes_parser() {
-    named!(parser<Vec<&[u8]>>,
+    named!(
+      parser<Vec<&[u8]>>,
       tr!(preceded!(
         tr!(tag!("data: ")),
         tr!(delimited!(
           tag!("("),
-          separated_list!(
-            tr!(tag!(",")),
-            tr!(digit)
-          ),
+          separated_list!(tr!(tag!(",")), tr!(digit)),
           tr!(tag!(")"))
         ))
       ))
