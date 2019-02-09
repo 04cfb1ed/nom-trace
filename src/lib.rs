@@ -220,7 +220,8 @@ impl TraceEvent {
     let indent = std::iter::repeat('\t').take(self.level).collect::<String>();
     match &self.event {
       TraceEventType::Open => {
-        println!("{}{}\t{:?}\n", indent, self.location, self.input);
+        let s = format!("{:?}", self.input).replace("\n", &("\n\t".to_owned() + &indent));
+        println!("{}{}\t{}", indent, self.location, s);
       },
       TraceEventType::CloseOk(result) => {
         println!("{}-> Ok({})", indent, result);
