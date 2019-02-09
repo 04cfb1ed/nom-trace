@@ -91,6 +91,7 @@
 extern crate nom;
 
 use std::fmt::{self,Debug};
+use nom::types::CompleteByteSlice;
 
 /// the main structure hoding trace events. It must be declared and stored
 /// in a thread level storage variable through the `declare_trace!()` macro
@@ -252,6 +253,12 @@ impl From<&[u8]> for Input {
 impl From<&str> for Input {
   fn from(input: &str) -> Self {
     Input::String(input.as_ptr(), input.len())
+  }
+}
+
+impl<'a> From<CompleteByteSlice<'a>> for Input {
+  fn from(input: CompleteByteSlice) -> Self {
+    Input::Bytes(input.as_ptr(), input.len())
   }
 }
 
